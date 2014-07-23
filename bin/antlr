@@ -1,0 +1,12 @@
+#!/bin/sh
+
+case "$0" in
+/*) bindir=`dirname "$0"` ;;
+*) bindir=`dirname "$PWD/$0"` ;;
+esac
+
+bindir=`cd -P $bindir;pwd`
+
+CLASSPATH=$bindir/../lib/antlr-4.2-complete.jar
+
+java -classpath ${CLASSPATH} org.antlr.v4.Tool $@
