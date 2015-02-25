@@ -19,5 +19,14 @@ public class Sweet {
         SweetParser parser = new SweetParser(tokens);
         ParseTree tree = parser.program();
         System.out.println(tree.toStringTree(parser));
+
+        InterpreterVisitor interpreter = new InterpreterVisitor();
+        interpreter.visit(tree);
+
+/*
+        ParseTreeWalker walker = new ParseTreeWalker(); // create standard walker 
+        InterpreterListener interpreter = new InterpreterListener(parser);
+        walker.walk(interpreter, tree); // initiate walk of tree with listener
+*/
     }
 }
