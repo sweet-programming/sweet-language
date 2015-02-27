@@ -10,9 +10,7 @@ functionDefinition: '@' '{' statement* '}';
 
 assign: ID '=' formula | ID '=' functionDefinition;
 
-formula: functionCall | stringLiteral | ID;
-
-stringLiteral: '"' (ESC_SEQ | ~('\\'|'"'))* '"';
+formula: functionCall | STRING | ID;
 
 functionCall: ID formula+;
 
@@ -21,3 +19,5 @@ INT:   [0-9]+;
 WS:    [ \t\n] -> skip;
 
 ESC_SEQ: '\\' ('\"'|'\\'|'/'|'b'|'f'|'n'|'r'|'t');
+
+STRING: '"' (ESC_SEQ | ~('\\'|'"'))* '"';

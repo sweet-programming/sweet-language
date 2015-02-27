@@ -9,6 +9,7 @@ public class Sweet {
         if (args.length > 0) {
             inputFile = args[0];
         }
+
         InputStream is = System.in;
         if (inputFile != null) {
             is = new FileInputStream(inputFile);
@@ -20,9 +21,12 @@ public class Sweet {
         ParseTree tree = parser.program();
         System.out.println(tree.toStringTree(parser));
 
-        InterpreterVisitor interpreter = new InterpreterVisitor();
+        FunctionTable functionTable = new FunctionTable();
+        InterpreterVisitor interpreter = new InterpreterVisitor(functionTable);
         interpreter.visit(tree);
 
+        Function main = functionTable.get("main");
+        main.call();
 /*
         ParseTreeWalker walker = new ParseTreeWalker(); // create standard walker 
         InterpreterListener interpreter = new InterpreterListener(parser);
