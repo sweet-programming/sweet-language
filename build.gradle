@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'scala'
 
 repositories {
     mavenCentral()
@@ -20,6 +21,10 @@ buildscript {
 
 repositories {
    jcenter()
+}
+
+dependencies {
+    compile 'org.scala-lang:scala-library:2.11.1'
 }
 
 apply plugin: 'me.champeau.gradle.antlr4'
