@@ -8,11 +8,13 @@ statement: assign | formula;
 
 functionDefinition: '@' '{' statement* '}';
 
-assign: ID '=' formula | ID '=' functionDefinition;
+assign: ID '=' formula
+      | ID '=' functionDefinition;
 
-formula: functionCall | STRING | ID;
-
-functionCall: ID formula+;
+formula: ID formula+      # functionCall
+       | STRING           # string
+       | ID               # id
+       ;
 
 ID:    [a-zA-z_] [a-zA-Z_0-9]*;
 INT:   [0-9]+;

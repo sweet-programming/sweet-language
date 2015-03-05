@@ -1,7 +1,8 @@
-class Function(n:String, visitor:InterpreterVisitor, definition:SweetParser.FunctionDefinitionContext) {
-    val name = n
-    def call(args:Value*):Value = {
-        visitor.visitChildren(definition)
-        null
-    }
+class Function(visitor:InterpreterVisitor, definition:SweetParser.FunctionDefinitionContext) extends SweetObject {
+  val objectType = "function"
+  
+  def call(args:SweetObject*):SweetObject = {
+      visitor.visitChildren(definition)
+      null
+  }
 }

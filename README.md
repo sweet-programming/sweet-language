@@ -11,5 +11,5 @@ build
 
 execute sample
 
-`scala -classpath lib/antlr-4.2-complete.jar:build/classes/main Sweet < sample.sweet`
+`scala -classpath lib/antlr-4.2-complete.jar:build/classes/main Sweet < samples/hello.sweet`
 
