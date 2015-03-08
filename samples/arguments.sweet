@@ -1,0 +1,7 @@
+say = @(str:String) {
+  print(str)
+}
+
+main = @{
+  say("hello world")
+}

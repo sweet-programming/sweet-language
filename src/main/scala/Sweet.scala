@@ -14,16 +14,12 @@ object Sweet {
         val tree = parser.program
         System.out.println(tree.toStringTree(parser))
 
-        val valueTable = new ValueTable
-        val interpreter = new InterpreterVisitor(valueTable)
+        val scope = new Scope(null)
+        scope.define(new Value("print", new PrintFunction))
+        val interpreter = new InterpreterVisitor(scope)
         interpreter.visit(tree)
 
-        val main = valueTable.get("main").asInstanceOf[Function]
+        val main = scope.resolve("main").asInstanceOf[Function]
         main.call()
-/*
-        ParseTreeWalker walker = new ParseTreeWalker(); // create standard walker 
-        InterpreterListener interpreter = new InterpreterListener(parser);
-        walker.walk(interpreter, tree); // initiate walk of tree with listener
-*/
     }
 }

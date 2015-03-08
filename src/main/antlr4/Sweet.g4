@@ -4,16 +4,23 @@ program: expression*;
 
 expression: functionDefinition | statement;
 
+formList: formula ( ',' formula )*;
+
 statement: assign | formula;
 
-functionDefinition: '@' '{' statement* '}';
+functionDefinition: '@' argList? '{' statement* '}';
+
+argList: '(' ID typeSuffix? ( ',' ID typeSuffix? )* ')';
+
+typeSuffix: ':' ID;
 
 assign: ID '=' formula
       | ID '=' functionDefinition;
 
-formula: ID formula+      # functionCall
+formula: ID '(' formList? ')'      # functionCall
+       | ID formList               # functionCall2
        | STRING           # string
-       | ID               # id
+       | ID               # var
        ;
 
 ID:    [a-zA-z_] [a-zA-Z_0-9]*;
