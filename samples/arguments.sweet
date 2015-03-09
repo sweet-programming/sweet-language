@@ -1,5 +1,5 @@
 say = @(str:String) {
-  print(str)
+  print(str + "\n")
 }
 
 main = @{

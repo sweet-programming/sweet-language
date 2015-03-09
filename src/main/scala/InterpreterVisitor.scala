@@ -14,7 +14,7 @@ class InterpreterVisitor(s:Scope) extends SweetBaseVisitor[SweetObject] {
   }
 
   override def visitStringValue(ctx:SweetParser.StringValueContext):SweetObject = {
-    new StringObject(removeQuotes(ctx.STRING.getText))
+    new StringObject(replaceEscapeSequence(removeQuotes(ctx.STRING.getText)))
   }
 
   override def visitIntValue(ctx:SweetParser.IntValueContext):SweetObject = {
@@ -62,4 +62,14 @@ class InterpreterVisitor(s:Scope) extends SweetBaseVisitor[SweetObject] {
   }
   
   def removeQuotes(str:String):String = str.substring(1, str.length() - 1)
+  def replaceEscapeSequence(str:String):String = {
+    "\\\\([n|r|t|b|f|\\\\])".r.replaceAllIn(str, m => {
+      m.group(1) match {
+        case "n" => "\n"
+        case "r" => "\r"
+        case "t" => "\t"
+        case "b" => "\b"
+      }
+    })
+  }
 }

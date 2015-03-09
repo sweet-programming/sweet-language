@@ -4,8 +4,8 @@ mul = @(x, y) { x * y }
 div = @(x, y) { x / y }
 
 main = @{
-  print("2 + 3 = " + add(2, 3))
-  print("5 - 3 = " + sub(5, 3))
-  print("2 * 3 = " + mul(2, 3))
-  print("7 / 3 = " + add(7, 3))
+  print("2 + 3 = " + add(2, 3) + "\n")
+  print("5 - 3 = " + sub(5, 3) + "\n")
+  print("2 * 3 = " + mul(2, 3) + "\n")
+  print("7 / 3 = " + add(7, 3) + "\n")
 }
