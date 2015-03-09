@@ -19,13 +19,21 @@ assign: ID '=' formula
 
 formula: ID '(' formList? ')'      # functionCall
        | ID formList               # functionCall2
-       | STRING           # string
-       | ID               # var
+       | STRING                    # stringValue
+       | INT                       # intValue
+       | ID                        # valueRef
+       | formula op=('*'|'/') formula  # divMulOperation
+       | formula op=('+'|'-') formula  # addSubOperation
        ;
 
 ID:    [a-zA-z_] [a-zA-Z_0-9]*;
 INT:   [0-9]+;
 WS:    [ \t\n] -> skip;
+
+ADD:  '+';
+SUB:  '-';
+MUL:  '*';
+DIV:  '/';
 
 ESC_SEQ: '\\' ('\"'|'\\'|'/'|'b'|'f'|'n'|'r'|'t');
 

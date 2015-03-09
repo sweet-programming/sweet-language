@@ -18,4 +18,7 @@ class Function(parentScope: Scope, d:SweetParser.FunctionDefinitionContext) exte
     }
     result
   }
+
+  override def toString():String = "@()"
+  override def add(o:SweetObject):SweetObject = sys.error("function can't add")
 }
