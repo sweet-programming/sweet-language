@@ -8,4 +8,12 @@ class IntObject(i:Int) extends SweetObject {
   def div(i:IntObject):IntObject = new IntObject(value / i.value)
 
   override def toString():String = i.toString
+
+  override def equals(other: Any) = {
+    other match {
+      case that: IntObject =>
+        value == that.value
+      case _ => false
+    }
+  }
 }

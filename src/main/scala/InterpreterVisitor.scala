@@ -43,10 +43,8 @@ class InterpreterVisitor(s:Scope) extends SweetBaseVisitor[SweetObject] {
     val left = visit(ctx.formula(0))
     val right = visit(ctx.formula(1))
     ctx.op.getText match {
-      case "*" =>
-        left.asInstanceOf[IntObject].mul(right.asInstanceOf[IntObject])
-      case "/" =>
-        left.asInstanceOf[IntObject].div(right.asInstanceOf[IntObject])
+      case "*" => left.asInstanceOf[IntObject].mul(right.asInstanceOf[IntObject])
+      case "/" => left.asInstanceOf[IntObject].div(right.asInstanceOf[IntObject])
     }
   }
 
@@ -54,11 +52,19 @@ class InterpreterVisitor(s:Scope) extends SweetBaseVisitor[SweetObject] {
     val left = visit(ctx.formula(0))
     val right = visit(ctx.formula(1))
     ctx.op.getText match {
-      case "+" =>
-        left.add(right)
-      case "-" =>
-        left.asInstanceOf[IntObject].sub(right.asInstanceOf[IntObject])
+      case "+" => left.add(right)
+      case "-" => left.asInstanceOf[IntObject].sub(right.asInstanceOf[IntObject])
     }
+  }
+
+  override def visitEqualsOperation(ctx: SweetParser.EqualsOperationContext): SweetObject = {
+    val left = visit(ctx.formula(0))
+    val right = visit(ctx.formula(1))
+    new BoolObject(left == right)
+  }
+
+  override def visitReturnStatement(ctx:SweetParser.ReturnStatementContext):SweetObject = {
+    visit(ctx.formula)
   }
   
   def removeQuotes(str:String):String = str.substring(1, str.length() - 1)

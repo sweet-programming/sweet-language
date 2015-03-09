@@ -1,22 +1,42 @@
 import collection.JavaConversions._
 
-class Function(parentScope: Scope, d:SweetParser.FunctionDefinitionContext) extends SweetObject {
+class Function(p: Scope, d:SweetParser.FunctionDefinitionContext) extends SweetObject {
+  val parentScope = p
   val definition = d
   val objectType = "function"
-  val scope = new Scope(parentScope)
   
   def call(args:SweetObject*):SweetObject = {
+    val scope = new Scope(parentScope)
+    val visitor = new InterpreterVisitor(scope)
+
     if (definition.argList != null) {
       for (i <- 0 until definition.argList.ID.size) {
         scope.define(new Value(definition.argList.ID(i).getText, args(i)))
       }
     }
-    val visitor = new InterpreterVisitor(scope)
     var result:SweetObject = null
     for (s <- definition.statement) {
-      result = s.accept(visitor)
+      val (res, statement) = executeStatement(s, visitor)
+      if (res != null) result = res
+      if (statement.isInstanceOf[SweetParser.ReturnStatementContext]) return result
     }
     result
+  }
+
+  def executeStatement(s: SweetParser.StatementContext, visitor: InterpreterVisitor): (SweetObject, SweetParser.StatementContext) = {
+    var result: SweetObject = null
+    var statement: SweetParser.StatementContext = s
+    if (s.isInstanceOf[SweetParser.PostIfStatementContext]) {
+      val ifStatement = s.asInstanceOf[SweetParser.PostIfStatementContext]
+      val condition = ifStatement.formula.accept(visitor)
+      if (condition.asInstanceOf[BoolObject].value) {
+        statement = ifStatement.statement
+        result = statement.accept(visitor)
+      }
+    } else {
+       result = statement.accept(visitor)
+    }
+    (result, statement)
   }
 
   override def toString():String = "@()"

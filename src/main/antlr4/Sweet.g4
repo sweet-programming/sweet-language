@@ -6,7 +6,11 @@ expression: functionDefinition | statement;
 
 formList: formula ( ',' formula )*;
 
-statement: assign | formula;
+statement: assign                  # assignStatement
+         | formula                 # formulaSatement
+         | 'return' formula?       # returnStatement
+         | statement 'if' formula  # postIfStatement
+         ;
 
 functionDefinition: '@' argList? '{' statement* '}';
 
@@ -24,6 +28,7 @@ formula: ID '(' formList? ')'      # functionCall
        | ID                        # valueRef
        | formula op=('*'|'/') formula  # divMulOperation
        | formula op=('+'|'-') formula  # addSubOperation
+       | formula '==' formula      # equalsOperation
        ;
 
 ID:    [a-zA-z_] [a-zA-Z_0-9]*;
