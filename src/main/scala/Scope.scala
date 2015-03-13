@@ -5,7 +5,7 @@ class Scope(p:Scope) {
   val valueTable = Map.empty[String, Value]
 
   def resolve(name:String):SweetObject = {
-    if (!valueTable.contains(name)) {
+    if (!isDefined(name)) {
       if (parent == null) {
         sys.error(s"undefined value: '$name'")
       }
@@ -15,7 +15,19 @@ class Scope(p:Scope) {
     valueTable(name).content
   }
 
-  def define(value:Value) = {
-    valueTable += value.name -> value
+  def define(value:Value): Unit = {
+    val name = value.name
+    if (isDefined(name))
+      sys.error(s"can't define defined value: '$name'")
+
+    valueTable += name -> value
+  }
+
+  def declare(name: String): Unit = {
+    valueTable += name -> null
+  }
+
+  def isDefined(name: String): Boolean = {
+    valueTable.contains(name) && valueTable(name) != null
   }
 }

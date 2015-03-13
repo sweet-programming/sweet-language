@@ -1,37 +1,43 @@
 grammar Sweet;
 
-program: expression*;
-
-expression: functionDefinition | statement;
+program: statement*;
 
 formList: formula ( ',' formula )*;
 
-statement: assign                  # assignStatement
-         | formula                 # formulaSatement
-         | 'return' formula?       # returnStatement
-         | statement 'if' formula  # postIfStatement
-         ;
-
-functionDefinition: '@' argList? '{' statement* '}';
+statement
+    : 'return' formula?                  # returnStatement
+    | 'if' '(' formula ')' statement     # ifStatement
+    | 'unless' '(' formula ')' statement # unlessStatement
+    | formula                            # formulaStatement
+    ;
 
 argList: '(' ID typeSuffix? ( ',' ID typeSuffix? )* ')';
 
 typeSuffix: ':' ID;
 
-assign: ID '=' formula
-      | ID '=' functionDefinition;
+formula
+    : formula '(' formList? ')'           # functionCall
+    | ID '=' formula                      # assignValue
+    | formula op=('*'|'/') formula        # divMulOperation
+    | formula op=('+'|'-') formula        # addSubOperation
+    | formula '==' formula                # equalsOperation
+    | formula arrayAccessor '=' formula   # assignArray
+    | '@' argList? '{' statement* '}'     # functionDefinition
+    | formula '[' formula IAD             # isArrayDefined
+    | formula arrayAccessor               # arrayRef
+    | IIDD                                # isIdDefined
+    | STRING                              # stringValue
+    | INT                                 # intValue
+    | ID                                  # valueRef
+    | '(' formula ')'                     # parenthesis
+    ;
 
-formula: ID '(' formList? ')'      # functionCall
-       | ID formList               # functionCall2
-       | STRING                    # stringValue
-       | INT                       # intValue
-       | ID                        # valueRef
-       | formula op=('*'|'/') formula  # divMulOperation
-       | formula op=('+'|'-') formula  # addSubOperation
-       | formula '==' formula      # equalsOperation
-       ;
+arrayAccessor: '[' formula ']';
 
-ID:    [a-zA-z_] [a-zA-Z_0-9]*;
+
+ID:     ('a' .. 'z' | 'A' .. 'Z') ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9')*;
+IIDD:  ID '?';
+IAD:   ']' '?';
 INT:   [0-9]+;
 WS:    [ \t\n] -> skip;
 

@@ -16,6 +16,7 @@ object Sweet {
 
         val scope = new Scope(null)
         scope.define(new Value("print", new PrintFunction))
+        scope.define(new Value("Array", ArrayObject.constructor))
         val interpreter = new InterpreterVisitor(scope)
         interpreter.visit(tree)
 

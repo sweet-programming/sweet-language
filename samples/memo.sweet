@@ -1,0 +1,11 @@
+fib = @(x: Int, memo: Array) {
+  if (x == 0) return 0
+  if (x == 1) return 1
+
+  unless (memo[x - 1]?) memo[x - 1] = fib(x - 1, memo) + fib(x - 2, memo)
+  memo[x - 1]
+}
+
+main = @{
+  print("fib(40) = " + fib(40, Array(40)) + "\n")
+}

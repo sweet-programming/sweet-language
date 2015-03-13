@@ -1,4 +1,4 @@
 main = @{
   hello = "hello sweet"
-  print hello + "\n"
+  print(hello + "\n")
 }

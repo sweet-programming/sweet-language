@@ -3,9 +3,17 @@ import collection.JavaConversions._
 class InterpreterVisitor(s:Scope) extends SweetBaseVisitor[SweetObject] {
   val scope = s
 
-  override def visitAssign(ctx:SweetParser.AssignContext):SweetObject = {
-    val obj = visitChildren(ctx)
+  override def visitAssignValue(ctx:SweetParser.AssignValueContext):SweetObject = {
+    val obj = visit(ctx.formula)
     scope.define(new Value(ctx.ID.getText, obj))
+    obj
+  }
+
+  override def visitAssignArray(ctx:SweetParser.AssignArrayContext):SweetObject = {
+    val index = visit(ctx.arrayAccessor.formula).asInstanceOf[IntObject]
+    val array = visit(ctx.formula(0)).asInstanceOf[ArrayObject]
+    val obj = visit(ctx.formula(1))
+    array.set(index.value, obj)
     obj
   }
 
@@ -21,6 +29,12 @@ class InterpreterVisitor(s:Scope) extends SweetBaseVisitor[SweetObject] {
     new IntObject(ctx.INT.getText.toInt)
   }
 
+  override def visitArrayRef(ctx: SweetParser.ArrayRefContext):SweetObject = {
+    val array = visit(ctx.formula).asInstanceOf[ArrayObject]
+    val index = visit(ctx.arrayAccessor.formula).asInstanceOf[IntObject]
+    array.get(index.value)
+  }
+
   override def visitValueRef(ctx:SweetParser.ValueRefContext):SweetObject = {
     scope.resolve(ctx.ID.getText)
   }
@@ -31,12 +45,18 @@ class InterpreterVisitor(s:Scope) extends SweetBaseVisitor[SweetObject] {
     } else {
       ctx.formList.formula.map(f => f.accept(this))
     }
-    scope.resolve(ctx.ID.getText).asInstanceOf[Function].call(args:_*)
+    val func = visit(ctx.formula).asInstanceOf[Function]
+    func.call(args:_*)
   }
 
-  override def visitFunctionCall2(ctx:SweetParser.FunctionCall2Context):SweetObject = {
-    val args = ctx.formList.formula.map(f => f.accept(this))
-    scope.resolve(ctx.ID.getText).asInstanceOf[Function].call(args:_*)
+  override def visitIsIdDefined(ctx: SweetParser.IsIdDefinedContext) = {
+     new BoolObject(scope.isDefined(ctx.IIDD.getText.dropRight(1)))
+  }
+
+  override def visitIsArrayDefined(ctx: SweetParser.IsArrayDefinedContext) = {
+     val array = visit(ctx.formula(0)).asInstanceOf[ArrayObject]
+     val index = visit(ctx.formula(1)).asInstanceOf[IntObject]
+     new BoolObject(array.isDefined(index.value))
   }
 
   override def visitDivMulOperation(ctx:SweetParser.DivMulOperationContext):SweetObject = {
@@ -48,7 +68,7 @@ class InterpreterVisitor(s:Scope) extends SweetBaseVisitor[SweetObject] {
     }
   }
 
-  override def visitAddSubOperation(ctx:SweetParser.AddSubOperationContext):SweetObject = {
+  override def visitAddSubOperation(ctx: SweetParser.AddSubOperationContext): SweetObject = {
     val left = visit(ctx.formula(0))
     val right = visit(ctx.formula(1))
     ctx.op.getText match {
@@ -60,7 +80,7 @@ class InterpreterVisitor(s:Scope) extends SweetBaseVisitor[SweetObject] {
   override def visitEqualsOperation(ctx: SweetParser.EqualsOperationContext): SweetObject = {
     val left = visit(ctx.formula(0))
     val right = visit(ctx.formula(1))
-    new BoolObject(left == right)
+    new BoolObject(left.equals(right))
   }
 
   override def visitReturnStatement(ctx:SweetParser.ReturnStatementContext):SweetObject = {
