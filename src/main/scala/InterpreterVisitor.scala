@@ -36,7 +36,11 @@ class InterpreterVisitor(s:Scope) extends SweetBaseVisitor[SweetObject] {
   }
 
   override def visitValueRef(ctx:SweetParser.ValueRefContext):SweetObject = {
-    scope.resolve(ctx.ID.getText)
+    try {
+      scope.resolve(ctx.ID.getText)
+    } catch { case e: Exception =>
+      sys.error(e.getMessage + "=> " + ctx.getStart.getLine + ":" + ctx.getStart.getCharPositionInLine)
+    }
   }
 
   override def visitFunctionCall(ctx:SweetParser.FunctionCallContext):SweetObject = {
@@ -83,7 +87,7 @@ class InterpreterVisitor(s:Scope) extends SweetBaseVisitor[SweetObject] {
     new BoolObject(left.equals(right))
   }
 
-  override def visitReturnStatement(ctx:SweetParser.ReturnStatementContext):SweetObject = {
+  override def visitParenthesis(ctx: SweetParser.ParenthesisContext): SweetObject = {
     visit(ctx.formula)
   }
   

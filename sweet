@@ -1,0 +1,3 @@
+#!/bin/sh
+
+scala -classpath lib/antlr-4.2-complete.jar:build/libs/sweet-language.jar Sweet

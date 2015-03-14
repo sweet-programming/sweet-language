@@ -5,15 +5,17 @@ program: statement*;
 formList: formula ( ',' formula )*;
 
 statement
-    : 'return' formula?                  # returnStatement
-    | 'if' '(' formula ')' statement     # ifStatement
-    | 'unless' '(' formula ')' statement # unlessStatement
-    | formula                            # formulaStatement
+    : 'if' formula expression         # ifStatement
+    | 'unless' formula expression     # unlessStatement
+    | expression 'if' formula        # postIfStatement
+    | expression 'unless' formula    # postUnlessStatement
+    | expression                      # expressionStatement
     ;
 
-argList: '(' ID typeSuffix? ( ',' ID typeSuffix? )* ')';
-
-typeSuffix: ':' ID;
+expression
+    : 'return' formula?                  # returnExpression
+    | formula                            # formulaExpression
+    ;
 
 formula
     : formula '(' formList? ')'           # functionCall
@@ -21,8 +23,8 @@ formula
     | formula op=('*'|'/') formula        # divMulOperation
     | formula op=('+'|'-') formula        # addSubOperation
     | formula '==' formula                # equalsOperation
-    | formula arrayAccessor '=' formula   # assignArray
     | '@' argList? '{' statement* '}'     # functionDefinition
+    | formula arrayAccessor '=' formula   # assignArray
     | formula '[' formula IAD             # isArrayDefined
     | formula arrayAccessor               # arrayRef
     | IIDD                                # isIdDefined
@@ -31,6 +33,10 @@ formula
     | ID                                  # valueRef
     | '(' formula ')'                     # parenthesis
     ;
+
+argList: '(' ID typeSuffix? ( ',' ID typeSuffix? )* ')';
+
+typeSuffix: ':' ID;
 
 arrayAccessor: '[' formula ']';
 
