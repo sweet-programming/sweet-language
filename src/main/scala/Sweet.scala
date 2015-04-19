@@ -1,26 +1,33 @@
 import org.antlr.v4.runtime._
 import org.antlr.v4.runtime.tree._
-import java.io.FileInputStream
-import java.io.InputStream
+import java.io.{ FileInputStream, InputStream, PrintStream }
 
 object Sweet {
-    def main(args: Array[String]) {
-        val is = if (args.length > 0) new FileInputStream(args(0)) else System.in
+  private var output = System.out
 
-        val input = new ANTLRInputStream(is)
-        val lexer = new SweetLexer(input)
-        val tokens = new CommonTokenStream(lexer)
-        val parser = new SweetParser(tokens)
-        val tree = parser.program
-        System.out.println(tree.toStringTree(parser))
+  def main(args: Array[String]) {
+    val is = if (args.length > 0) new FileInputStream(args(0)) else System.in
+    run(is, System.out)
+  }
 
-        val scope = new Scope(null)
-        scope.define(new Value("print", new PrintFunction))
-        scope.define(new Value("Array", ArrayObject.constructor))
-        val interpreter = new InterpreterVisitor(scope)
-        interpreter.visit(tree)
+  def run(in: InputStream, out: PrintStream) {
+    this.output = out
+    val input = new ANTLRInputStream(in)
+    val lexer = new SweetLexer(input)
+    val tokens = new CommonTokenStream(lexer)
+    val parser = new SweetParser(tokens)
+    val tree = parser.program
+    System.out.println(tree.toStringTree(parser))
 
-        val main = scope.resolve("main").asInstanceOf[Function]
-        main.call()
-    }
+    val scope = new Scope(null)
+    scope.define(new Value("print", new PrintFunction))
+    scope.define(new Value("Array", ArrayObject.constructor))
+    val interpreter = new InterpreterVisitor(scope)
+    interpreter.visit(tree)
+
+    val main = scope.resolve("main").asInstanceOf[Function]
+    main.call()
+  }
+
+  def STDOUT() = { this.output }
 }

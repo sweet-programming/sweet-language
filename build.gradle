@@ -1,5 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'scala'
+apply plugin: "com.github.maiflai.scalatest"
 
 repositories {
     mavenCentral()
@@ -11,11 +12,15 @@ buildscript {
             name 'JFrog OSS snapshot repo'
             url  'https://oss.jfrog.org/oss-snapshot-local/'
         }
+        maven {
+          url "https://plugins.gradle.org/m2/"
+        }
         jcenter()
     }
 
     dependencies {
         classpath 'me.champeau.gradle:antlr4-gradle-plugin:0.1'
+        classpath "com.github.maiflai:gradle-scalatest:0.6-5-g9065d91"
     }
 }
 
@@ -25,6 +30,8 @@ repositories {
 
 dependencies {
     compile 'org.scala-lang:scala-library:2.11.1'
+    testCompile 'org.scalatest:scalatest_2.11:2+'
+    testRuntime 'org.pegdown:pegdown:1.1.0'
 }
 
 apply plugin: 'me.champeau.gradle.antlr4'
