@@ -1,20 +1,32 @@
 import collection.JavaConversions._
 
-class Function(p: Scope, d:SweetParser.FunctionDefinitionContext) extends SweetObject {
+class Function(p: Scope, d: SweetParser.FunctionDefinitionContext) extends SweetObject {
   val parentScope = p
   val definition = d
   val objectType = "function"
-  
-  def call(args:SweetObject*):SweetObject = {
+
+  def bindArgs(scope: Scope, args: List[SweetObject], parametricArgs: List[Value]) {
+    if (definition.argList != null) {
+      var varArgs = args
+      for (i <- 0 until definition.argList.ID.size) {
+        val name = definition.argList.ID(i).getText
+        val value = parametricArgs.find(arg => arg.name == name).getOrElse(
+           {
+              val new_value = new Value(name, varArgs.head)
+              varArgs = varArgs.drop(1)
+              new_value
+           })
+        scope.define(value)
+      }
+    }
+  }
+
+  def call(args: List[SweetObject], parametricArgs: List[Value]):SweetObject = {
     val scope = new Scope(parentScope)
     declareValues(scope)
     val visitor = new ExecutionVisitor(scope)
 
-    if (definition.argList != null) {
-      for (i <- 0 until definition.argList.ID.size) {
-        scope.define(new Value(definition.argList.ID(i).getText, args(i)))
-      }
-    }
+    bindArgs(scope, args, parametricArgs)
 
     var ctx: InterpreterContext = null
     for (s <- definition.statement) {
@@ -57,6 +69,10 @@ class ExecutionVisitor(s: Scope) extends SweetBaseVisitor[InterpreterContext] {
     new InterpreterContext(value)
   }
 
+  override def visitExpressionStatement(ctx: SweetParser.ExpressionStatementContext): InterpreterContext = {
+    visit(ctx.expression)
+  }
+
   override def visitIfStatement(ctx: SweetParser.IfStatementContext): InterpreterContext = {
     val condition = ctx.formula.accept(interpreter).asInstanceOf[BoolObject]
     if (condition.value) {
@@ -91,5 +107,14 @@ class ExecutionVisitor(s: Scope) extends SweetBaseVisitor[InterpreterContext] {
     } else {
       new InterpreterContext(NullObject)
     }
+  }
+}
+
+class BindFunction(f: Function, b: List[Value]) extends Function(f.parentScope, f.definition) {
+  val parent = f
+  val bindings = b
+
+  override def call(args: List[SweetObject], parametricArgs: List[Value]): SweetObject = {
+    super.call(args, parametricArgs:::bindings)
   }
 }

@@ -12,7 +12,7 @@ class ArrayObject(s: Int) extends SweetObject {
 object ArrayObject extends ArrayObject(0) {
   def constructor(): Function = {
     new Function(null, null) {
-      override def call(args: SweetObject*): SweetObject = new ArrayObject(args(0).asInstanceOf[IntObject].value)
+      override def call(args: List[SweetObject], parametricArgs: List[Value]): SweetObject = new ArrayObject(args(0).asInstanceOf[IntObject].value)
     }
   }
 }

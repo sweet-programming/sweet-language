@@ -1,0 +1,7 @@
+func = (s: "sweet") => @(s: String) {
+  "hello " + s + "\n"
+}
+
+main = @() {
+  print(func())
+}

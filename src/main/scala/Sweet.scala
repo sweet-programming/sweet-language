@@ -26,7 +26,7 @@ object Sweet {
     interpreter.visit(tree)
 
     val main = scope.resolve("main").asInstanceOf[Function]
-    main.call()
+    main.call(List.empty[SweetObject], List.empty[Value])
   }
 
   def STDOUT() = { this.output }

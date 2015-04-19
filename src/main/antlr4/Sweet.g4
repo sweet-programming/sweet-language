@@ -2,8 +2,6 @@ grammar Sweet;
 
 program: statement*;
 
-formList: formula ( ',' formula )*;
-
 statement
     : 'if' formula expression         # ifStatement
     | 'unless' formula expression     # unlessStatement
@@ -18,27 +16,35 @@ expression
     ;
 
 formula
-    : formula '(' formList? ')'           # functionCall
-    | ID '=' formula                      # assignValue
-    | formula op=('*'|'/') formula        # divMulOperation
-    | formula op=('+'|'-') formula        # addSubOperation
-    | formula '==' formula                # equalsOperation
-    | '@' argList? '{' statement* '}'     # functionDefinition
-    | formula arrayAccessor '=' formula   # assignArray
-    | formula '[' formula IAD             # isArrayDefined
-    | formula arrayAccessor               # arrayRef
-    | IIDD                                # isIdDefined
-    | STRING                              # stringValue
-    | INT                                 # intValue
-    | ID                                  # valueRef
-    | '(' formula ')'                     # parenthesis
+    : '(' bindingList ')' '=>' formula                            # partialApplication
+    | formula '(' formList? bindingList? ')'                      # functionCall
+    | ID '=' formula                                              # assignValue
+    | formula op=('*'|'/') formula                                # divMulOperation
+    | formula op=('+'|'-') formula                                # addSubOperation
+    | formula '==' formula                                        # equalsOperation
+    | '@' ('(' argList? parametricArgList? ')')? '{' statement* '}'     # functionDefinition
+    | formula arrayAccessor '=' formula                           # assignArray
+    | formula '[' formula IAD                                     # isArrayDefined
+    | formula arrayAccessor                                       # arrayRef
+    | IIDD                                                        # isIdDefined
+    | STRING                                                      # stringValue
+    | INT                                                         # intValue
+    | ID                                                          # valueRef
+    | '(' formula ')'                                             # parenthesis
     ;
 
-argList: '(' ID typeSuffix? ( ',' ID typeSuffix? )* ')';
+binding: ID ':' formula;
+bindingList: binding ( ',' binding )*;
+
+argList: ID typeSuffix? ( ',' ID typeSuffix? )*;
+
+parametricArgList: ID typeSuffix? '=' formula ( ',' ID typeSuffix? '=' formula )*;
 
 typeSuffix: ':' ID;
 
 arrayAccessor: '[' formula ']';
+
+formList: formula ( ',' formula )*;
 
 
 ID:     ('a' .. 'z' | 'A' .. 'Z') ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9')*;

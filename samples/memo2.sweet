@@ -1,0 +1,15 @@
+fib = @(x: Int) {
+  memorized = (memo: Array(x)) => @(x: Int, memo: Array) {
+    return 0 if x == 0
+    return 1 if x == 1
+
+    memo[x - 1] = memorized(x - 1) + memorized(x - 2) unless memo[x - 1]?
+    memo[x - 1]
+  }
+
+  memorized(x)
+}
+
+main = @{
+  print("fib(40) = " + fib(40) + "\n")
+}

@@ -18,7 +18,7 @@ class InterpreterVisitor(s:Scope) extends SweetBaseVisitor[SweetObject] {
   }
 
   override def visitFunctionDefinition(ctx:SweetParser.FunctionDefinitionContext):SweetObject = {
-     new Function(scope, ctx)
+    new Function(scope, ctx)
   }
 
   override def visitStringValue(ctx:SweetParser.StringValueContext):SweetObject = {
@@ -43,14 +43,19 @@ class InterpreterVisitor(s:Scope) extends SweetBaseVisitor[SweetObject] {
     }
   }
 
-  override def visitFunctionCall(ctx:SweetParser.FunctionCallContext):SweetObject = {
-    val args = if (ctx.formList == null) {
-      List.empty[SweetObject]
-    } else {
-      ctx.formList.formula.map(f => f.accept(this))
+  override def visitFunctionCall(ctx: SweetParser.FunctionCallContext): SweetObject = {
+    val args = ctx.formList match {
+      case null => List.empty[SweetObject]
+      case x => x.formula.map(f => f.accept(this)).toList
     }
     val func = visit(ctx.formula).asInstanceOf[Function]
-    func.call(args:_*)
+    func.call(args, List.empty[Value])
+  }
+
+  override def visitPartialApplication(ctx: SweetParser.PartialApplicationContext): SweetObject = {
+    val bindings = ctx.bindingList.binding.map { b => new Value(b.ID.getText, visit(b.formula)) }.toList
+    val func = visit(ctx.formula).asInstanceOf[Function]
+    new BindFunction(func, bindings)
   }
 
   override def visitIsIdDefined(ctx: SweetParser.IsIdDefinedContext) = {
