@@ -9,14 +9,6 @@ class InterpreterVisitor(s:Scope) extends SweetBaseVisitor[SweetObject] {
     obj
   }
 
-  override def visitAssignArray(ctx:SweetParser.AssignArrayContext):SweetObject = {
-    val index = visit(ctx.arrayAccessor.formula).asInstanceOf[IntObject]
-    val array = visit(ctx.formula(0)).asInstanceOf[ArrayObject]
-    val obj = visit(ctx.formula(1))
-    array.set(index.value, obj)
-    obj
-  }
-
   override def visitFunctionDefinition(ctx:SweetParser.FunctionDefinitionContext):SweetObject = {
     new Function(scope, ctx)
   }
@@ -27,12 +19,6 @@ class InterpreterVisitor(s:Scope) extends SweetBaseVisitor[SweetObject] {
 
   override def visitIntValue(ctx:SweetParser.IntValueContext):SweetObject = {
     new IntObject(ctx.INT.getText.toInt)
-  }
-
-  override def visitArrayRef(ctx: SweetParser.ArrayRefContext):SweetObject = {
-    val array = visit(ctx.formula).asInstanceOf[ArrayObject]
-    val index = visit(ctx.arrayAccessor.formula).asInstanceOf[IntObject]
-    array.get(index.value)
   }
 
   override def visitValueRef(ctx:SweetParser.ValueRefContext):SweetObject = {
@@ -60,12 +46,6 @@ class InterpreterVisitor(s:Scope) extends SweetBaseVisitor[SweetObject] {
 
   override def visitIsIdDefined(ctx: SweetParser.IsIdDefinedContext) = {
      new BoolObject(scope.isDefined(ctx.IIDD.getText.dropRight(1)))
-  }
-
-  override def visitIsArrayDefined(ctx: SweetParser.IsArrayDefinedContext) = {
-     val array = visit(ctx.formula(0)).asInstanceOf[ArrayObject]
-     val index = visit(ctx.formula(1)).asInstanceOf[IntObject]
-     new BoolObject(array.isDefined(index.value))
   }
 
   override def visitDivMulOperation(ctx:SweetParser.DivMulOperationContext):SweetObject = {

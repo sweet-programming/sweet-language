@@ -24,9 +24,6 @@ formula
     | formula op=('+'|'-') formula                                # addSubOperation
     | formula '==' formula                                        # equalsOperation
     | '@' ('(' argList? parametricArgList? ')')? '{' statement* '}'     # functionDefinition
-    | formula arrayAccessor '=' formula                           # assignArray
-    | formula '[' formula ']?'                                    # isArrayDefined
-    | formula arrayAccessor                                       # arrayRef
     | IIDD                                                        # isIdDefined
     | STRING                                                      # stringValue
     | INT                                                         # intValue
@@ -43,8 +40,6 @@ argTypeSuffix: typeSuffix ( '[' formula '..' formula ']' )?;
 parametricArgList: ID argTypeSuffix? '=' formula ( ',' ID argTypeSuffix? '=' formula )*;
 
 typeSuffix: ':' ID;
-
-arrayAccessor: '[' formula ']';
 
 formList: formula ( ',' formula )*;
 

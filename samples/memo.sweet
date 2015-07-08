@@ -1,11 +1,13 @@
-fib = @(x: Int, memo: Array) {
-  return 0 if x == 0
-  return 1 if x == 1
+fib = @(n: Int) {
+  memo = @(i: Int[0..n]) {
+    return 0 if i == 0
+    return 1 if i == 1
+    memo(i - 1) + memo(i - 2)
+  }
 
-  memo[x - 1] = fib(x - 1, memo) + fib(x - 2, memo) unless memo[x - 1]?
-  memo[x - 1]
+  memo(n)
 }
 
 main = @{
-  print("fib(40) = " + fib(40, Array(40)) + "\n")
+  print("fib(40) = " + fib(40) + "\n")
 }
