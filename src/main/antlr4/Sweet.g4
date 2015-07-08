@@ -18,13 +18,14 @@ expression
 formula
     : '(' bindingList ')' '=>' formula                            # partialApplication
     | formula '(' formList? bindingList? ')'                      # functionCall
+    | ID '.' ID                                                   # memberOperation
     | ID '=' formula                                              # assignValue
     | formula op=('*'|'/') formula                                # divMulOperation
     | formula op=('+'|'-') formula                                # addSubOperation
     | formula '==' formula                                        # equalsOperation
     | '@' ('(' argList? parametricArgList? ')')? '{' statement* '}'     # functionDefinition
     | formula arrayAccessor '=' formula                           # assignArray
-    | formula '[' formula IAD                                     # isArrayDefined
+    | formula '[' formula ']?'                                    # isArrayDefined
     | formula arrayAccessor                                       # arrayRef
     | IIDD                                                        # isIdDefined
     | STRING                                                      # stringValue
@@ -36,9 +37,10 @@ formula
 binding: ID ':' formula;
 bindingList: binding ( ',' binding )*;
 
-argList: ID typeSuffix? ( ',' ID typeSuffix? )*;
+argList: ID argTypeSuffix? ( ',' ID argTypeSuffix? )*;
+argTypeSuffix: typeSuffix ( '[' formula '..' formula ']' )?;
 
-parametricArgList: ID typeSuffix? '=' formula ( ',' ID typeSuffix? '=' formula )*;
+parametricArgList: ID argTypeSuffix? '=' formula ( ',' ID argTypeSuffix? '=' formula )*;
 
 typeSuffix: ':' ID;
 
@@ -49,7 +51,6 @@ formList: formula ( ',' formula )*;
 
 ID:     ('a' .. 'z' | 'A' .. 'Z') ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9')*;
 IIDD:  ID '?';
-IAD:   ']' '?';
 INT:   [0-9]+;
 WS:    [ \t\n] -> skip;
 

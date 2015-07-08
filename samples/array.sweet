@@ -1,0 +1,5 @@
+module Array<T>(values: *T) {
+  get := @(i: Int[0 .. values.size - 1]): T {
+  }
+}
+

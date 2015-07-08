@@ -1,0 +1,13 @@
+fib = @(n: Int) {
+  memo = @(i: Int[0..n]) {
+    return 0 if i == 0
+    return 1 if i == 1
+    memo(i - 1) + memo(i - 2)
+  }
+
+  memo(n)
+}
+
+main = @{
+  print("fib(40) = " + fib(40) + "\n")
+}

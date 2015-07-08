@@ -1,0 +1,10 @@
+module Add(x:Int, y:Int) {
+  _.apply := _ => @(x:Int, y:Int): Int {
+    x + y
+  }
+}
+
+main = @{
+  add = Add(1, 3)
+  print("1 + 3 = " + add.apply() + "\n")
+}

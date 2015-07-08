@@ -1,0 +1,20 @@
+type List<T> {
+  each: @(top: Cons<T>, f: Function<T>)
+}
+
+module Cons<T>(head: T, tail: List<T>) {
+}
+
+module List<T>(top: Cons<T>) {
+  each := (top: _.top) => @(top: Cons<T>, f: Function<T>) {
+    f(top.head)
+    top.tail.each(f)
+  }
+
+  List := @(args: T*) {
+    cons = null
+    args.each(@(arg) {
+      cons = Cons(arg, List(cons))
+    }
+  }
+}

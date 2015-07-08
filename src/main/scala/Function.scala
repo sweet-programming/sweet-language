@@ -5,6 +5,8 @@ class Function(p: Scope, d: SweetParser.FunctionDefinitionContext) extends Sweet
   val definition = d
   val objectType = "function"
 
+  val memo = createMemo(d)
+
   def bindArgs(scope: Scope, args: List[SweetObject], parametricArgs: List[Value]) {
     if (definition.argList != null) {
       var varArgs = args
@@ -21,7 +23,18 @@ class Function(p: Scope, d: SweetParser.FunctionDefinitionContext) extends Sweet
     }
   }
 
-  def call(args: List[SweetObject], parametricArgs: List[Value]):SweetObject = {
+  def call(args: List[SweetObject], parametricArgs: List[Value]): SweetObject = {
+    memo.getResultValue(args) match {
+      case null => {
+        val result = execute(args, parametricArgs)
+        memo.set(args, result)
+        result
+      }
+      case x => x
+    }
+  }
+
+  def execute(args: List[SweetObject], parametricArgs: List[Value]): SweetObject = {
     val scope = new Scope(parentScope)
     declareValues(scope)
     val visitor = new ExecutionVisitor(scope)
@@ -29,7 +42,7 @@ class Function(p: Scope, d: SweetParser.FunctionDefinitionContext) extends Sweet
     bindArgs(scope, args, parametricArgs)
 
     var ctx: InterpreterContext = null
-    for (s <- definition.statement) {
+    definition.statement foreach { s =>
       ctx = s.accept(visitor)
       if (ctx.returnStatement) return ctx.value
     }
@@ -38,16 +51,55 @@ class Function(p: Scope, d: SweetParser.FunctionDefinitionContext) extends Sweet
 
   def declareValues(scope: Scope): Unit = {
     val visitor = new DeclareVisitor(scope)
-    for (s <- definition.statement) {
+    definition.statement foreach { s =>
       visitor.visit(s)
     }
   }
 
-  override def toString():String = "@()"
-  override def add(o:SweetObject):SweetObject = sys.error("function can't add")
+  def createMemo(d: SweetParser.FunctionDefinitionContext): Memo = {
+    if (d == null || d.argList == null) return new Memo(List())
+    val suffixes = d.argList.argTypeSuffix
+    val visitor = new InterpreterVisitor(new Scope(parentScope))
+    val size = suffixes.map { suffix =>
+      // todo: error handling is nessesary
+      if (suffix.formula(0) == null) return new Memo(List())
+      val start = suffix.formula(0).accept(visitor).asInstanceOf[IntObject].value
+      val end = suffix.formula(1).accept(visitor).asInstanceOf[IntObject].value
+      end - start + 1
+    }.toList
+
+    new Memo(size)
+  }
+
+  override def toString(): String = "@()"
+  override def add(o:SweetObject): SweetObject = sys.error("function can't add")
 }
 
-class DeclareVisitor(s:Scope) extends SweetBaseVisitor[Unit] {
+class Memo(s: List[Int]) {
+  val size = s
+  val array = new Array[SweetObject](size.foldLeft(1) { (s, u) => u * s })
+
+  def getResultValue(args: List[SweetObject]): SweetObject = {
+    if (size.length == 0) return null
+    array(index(args))
+  }
+
+  def set(args: List[SweetObject], result: SweetObject): Unit = {
+    if (size.length == 0) return
+    array(index(args)) = result
+  }
+
+  def index(args: List[SweetObject]): Int = {
+    args.foldLeft((0, 1, 1)) { (sum, arg) =>
+      val v = arg.asInstanceOf[IntObject].value
+      val i = sum._1 + sum._2 * v
+      val p = if (sum._3 < size.length) sum._2 * size(sum._3) else 0
+      (i, p, sum._3 + 1)
+    }._1
+  }
+}
+
+class DeclareVisitor(s: Scope) extends SweetBaseVisitor[Unit] {
   val scope = s
 
   override def visitAssignValue(ctx:SweetParser.AssignValueContext):Unit = {
